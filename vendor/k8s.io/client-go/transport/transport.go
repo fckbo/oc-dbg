@@ -33,6 +33,7 @@ import (
 // New returns an http.RoundTripper that will provide the authentication
 // or transport level security defined by the provided Config.
 func New(config *Config) (http.RoundTripper, error) {
+	fmt.Println("FB !!! k8s.io/client-go/transport/transport->New")
 	// Set transport level security
 	if config.Transport != nil && (config.HasCA() || config.HasCertAuth() || config.HasCertCallback() || config.TLS.Insecure) {
 		return nil, fmt.Errorf("using a custom transport with TLS certificate options or the insecure flag is not allowed")
@@ -44,8 +45,10 @@ func New(config *Config) (http.RoundTripper, error) {
 	)
 
 	if config.Transport != nil {
+		fmt.Println("FB !!! k8s.io/client-go/transport/transport->config.Transport is already set")
 		rt = config.Transport
 	} else {
+		fmt.Println("FB !!! k8s.io/client-go/transport/transport->get config.Transport from tlsCache")
 		rt, err = tlsCache.get(config)
 		if err != nil {
 			return nil, err
@@ -58,6 +61,7 @@ func New(config *Config) (http.RoundTripper, error) {
 // TLSConfigFor returns a tls.Config that will provide the transport level security defined
 // by the provided Config. Will return nil if no transport level security is requested.
 func TLSConfigFor(c *Config) (*tls.Config, error) {
+	fmt.Println("FB !!! k8s.io/client-go/transport/transport->TLSConfigFor")
 	if !(c.HasCA() || c.HasCertAuth() || c.HasCertCallback() || c.TLS.Insecure || len(c.TLS.ServerName) > 0 || len(c.TLS.NextProtos) > 0) {
 		return nil, nil
 	}

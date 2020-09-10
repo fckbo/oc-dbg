@@ -81,6 +81,8 @@ func NewCmdLogin(f kcmdutil.Factory, streams genericclioptions.IOStreams) *cobra
 	// Login is the only command that can negotiate a session token against the auth server using basic auth
 	cmds.Flags().StringVarP(&o.Username, "username", "u", o.Username, "Username, will prompt if not provided")
 	cmds.Flags().StringVarP(&o.Password, "password", "p", o.Password, "Password, will prompt if not provided")
+	//FB Change
+	cmds.Flags().DurationVarP(&o.TLSHandshakeTimeout, "tls-handshake-timeout", "",  o.TLSHandshakeTimeout, "Set TLS Handshake Timeout in case the 10 seconds default is too short (e.g. 30s, 2m)")
 
 	return cmds
 }
@@ -140,6 +142,7 @@ func (o *LoginOptions) Complete(f kcmdutil.Factory, cmd *cobra.Command, args []s
 
 	o.PathOptions = kubeconfiglib.NewPathOptions(cmd)
 
+	fmt.Println("FB Trace !!! cli.login.login-Complete: TLSHandshakeTimeout=",o.TLSHandshakeTimeout)
 	return nil
 }
 

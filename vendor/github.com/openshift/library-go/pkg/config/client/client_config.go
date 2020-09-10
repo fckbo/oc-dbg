@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"time"
+	"fmt"
 
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -15,6 +16,7 @@ import (
 // GetKubeConfigOrInClusterConfig loads in-cluster config if kubeConfigFile is empty or the file if not,
 // then applies overrides.
 func GetKubeConfigOrInClusterConfig(kubeConfigFile string, overrides *ClientConnectionOverrides) (*rest.Config, error) {
+	fmt.Println("FB Trace !!! github.com/openshift/library-go/pkg/config/client/client_config->GetKubeConfigOrInClusterConfig")
 	if len(kubeConfigFile) > 0 {
 		return GetClientConfig(kubeConfigFile, overrides)
 	}
@@ -37,6 +39,7 @@ func GetKubeConfigOrInClusterConfig(kubeConfigFile string, overrides *ClientConn
 
 // GetClientConfig returns the rest.Config for a kubeconfig file
 func GetClientConfig(kubeConfigFile string, overrides *ClientConnectionOverrides) (*rest.Config, error) {
+	fmt.Println("FB Trace !!! github.com/openshift/library-go/pkg/config/client/client_config->GetClientConfig")
 	kubeConfigBytes, err := ioutil.ReadFile(kubeConfigFile)
 	if err != nil {
 		return nil, err
@@ -62,6 +65,7 @@ func GetClientConfig(kubeConfigFile string, overrides *ClientConnectionOverrides
 
 // applyClientConnectionOverrides updates a kubeConfig with the overrides from the config.
 func applyClientConnectionOverrides(overrides *ClientConnectionOverrides, kubeConfig *rest.Config) {
+	fmt.Println("FB Trace !!! github.com/openshift/library-go/pkg/config/client/client_config->applyClientConnectionOverrides")
 	if overrides == nil {
 		return
 	}
@@ -96,6 +100,7 @@ type ClientTransportOverrides struct {
 
 // defaultClientTransport sets defaults for a client Transport that are suitable for use by infrastructure components.
 func (c ClientTransportOverrides) DefaultClientTransport(rt http.RoundTripper) http.RoundTripper {
+	fmt.Println("FB Trace !!! github.com/openshift/library-go/pkg/config/client/client_config->DefaultClientTransport")
 	transport, ok := rt.(*http.Transport)
 	if !ok {
 		return rt

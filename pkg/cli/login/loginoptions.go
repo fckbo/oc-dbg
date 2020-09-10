@@ -68,6 +68,9 @@ type LoginOptions struct {
 	CommandName    string
 	RequestTimeout time.Duration
 
+	//FB Change
+	TLSHandshakeTimeout time.Duration
+
 	genericclioptions.IOStreams
 }
 
@@ -81,6 +84,7 @@ func NewLoginOptions(streams genericclioptions.IOStreams) *LoginOptions {
 func (o *LoginOptions) GatherInfo() error {
 	defer o.prepareAndDisplayMOTD()
 
+	fmt.Println("FB !!! cli/login/loginoptions->GatherInfo")
 	if err := o.gatherAuthInfo(); err != nil {
 		return err
 	}
@@ -94,13 +98,17 @@ func (o *LoginOptions) GatherInfo() error {
 // getClientConfig returns back the current clientConfig as we know it.  If there is no clientConfig, it builds one with enough information
 // to talk to a server.  This may involve user prompts.  This method is not threadsafe.
 func (o *LoginOptions) getClientConfig() (*restclient.Config, error) {
+	fmt.Println("FB !!! cli/login/loginoptions->getClientConfig")
 	if o.Config != nil {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit1")
 		return o.Config, nil
 	}
 
 	if len(o.Server) == 0 {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step1")
 		// we need to have a server to talk to
 		if kterm.IsTerminal(o.In) {
+			fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step2")
 			for !o.serverProvided() {
 				defaultServer := defaultClusterURL
 				promptMsg := fmt.Sprintf("Server [%s]: ", defaultServer)
@@ -110,37 +118,51 @@ func (o *LoginOptions) getClientConfig() (*restclient.Config, error) {
 	}
 
 	clientConfig := &restclient.Config{}
+	fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step3")
 
 	// ensure clientConfig has timeout option
 	if o.RequestTimeout > 0 {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step4")
 		clientConfig.Timeout = o.RequestTimeout
 	}
 
 	// normalize the provided server to a format expected by config
 	serverNormalized, err := originkubeconfignames.NormalizeServerURL(o.Server)
 	if err != nil {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit2")
 		return nil, err
 	}
 	o.Server = serverNormalized
 	clientConfig.Host = o.Server
+	fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step5")
 
 	// use specified CA or find existing CA
 	if len(o.CAFile) > 0 {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step6")
 		clientConfig.CAFile = o.CAFile
 		clientConfig.CAData = nil
 	} else if caFile, caData, ok := findExistingClientCA(clientConfig.Host, *o.StartingKubeConfig); ok {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step7")
 		clientConfig.CAFile = caFile
 		clientConfig.CAData = caData
 	}
 
 	// try to TCP connect to the server to make sure it's reachable, and discover
 	// about the need of certificates or insecure TLS
+	fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step8")
+	//FB PATCH START
+	if o.InsecureTLS {
+		fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-patch")
+		clientConfig.Insecure = true
+	}
+	//FB PATCH END
 	if err := dialToServer(*clientConfig); err != nil {
 		switch err.(type) {
 		// certificate authority unknown, check or prompt if we want an insecure
 		// connection or if we already have a cluster stanza that tells us to
 		// connect to this particular server insecurely
 		case x509.UnknownAuthorityError, x509.HostnameError, x509.CertificateInvalidError:
+			fmt.Println("FB !!! cli/login/loginoptions-getClientConfig-step9")
 			if o.InsecureTLS ||
 				hasExistingInsecureCluster(*clientConfig, *o.StartingKubeConfig) ||
 				promptForInsecureTLS(o.In, o.Out, err) {
@@ -150,19 +172,24 @@ func (o *LoginOptions) getClientConfig() (*restclient.Config, error) {
 				// dialToServer was called above but in case of user choosing insecure,
 				// need to call again for invalidServerURL check
 				if err := dialToServer(*clientConfig); err != nil {
+					fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit3")
 					return nil, err
 				}
 			} else {
+				fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit4")
 				return nil, getPrettyErrorForServer(err, o.Server)
 			}
 		// TLS record header errors, like oversized record which usually means
 		// the server only supports "http"
 		case tls.RecordHeaderError:
+			fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit5")
 			return nil, getPrettyErrorForServer(err, o.Server)
 		default:
 			if _, ok := err.(*net.OpError); ok {
+				fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit6")
 				return nil, fmt.Errorf("%v - verify you have provided the correct host and port and that the server is currently running.", err)
 			}
+			fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-exit7")
 			return nil, err
 		}
 
@@ -170,6 +197,7 @@ func (o *LoginOptions) getClientConfig() (*restclient.Config, error) {
 
 	o.Config = clientConfig
 
+	fmt.Println("FB !!! cli/login/loginoptions-getClientConfig<-normal exit")
 	return o.Config, nil
 }
 
@@ -177,6 +205,7 @@ func (o *LoginOptions) getClientConfig() (*restclient.Config, error) {
 // information already present. In case of any missing information, ask for user input
 // (usually username and password, interactive depending on the Reader).
 func (o *LoginOptions) gatherAuthInfo() error {
+	fmt.Println("FB !!! cli/login/loginoptions->gatherAuthInfo")
 	directClientConfig, err := o.getClientConfig()
 	if err != nil {
 		return err

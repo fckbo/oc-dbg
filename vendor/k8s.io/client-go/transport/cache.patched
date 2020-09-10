@@ -88,10 +88,12 @@ func (c *tlsTransportCache) get(config *Config) (http.RoundTripper, error) {
 		return nil, err
 	}
 	// The options didn't require a custom TLS config
-	if tlsConfig == nil && config.Dial == nil && config.Proxy == nil {
-        		fmt.Println("FB !!! k8s.io/client-go/transport/cache-tlsTransportCache get exit3 return default Transport")
-        		return http.DefaultTransport, nil
-        	}
+	//FB PATCH START
+	//if tlsConfig == nil && config.Dial == nil && config.Proxy == nil {
+        //		fmt.Println("FB !!! k8s.io/client-go/transport/cache-tlsTransportCache get exit3 return default Transport")
+        //		return http.DefaultTransport, nil
+        //	}
+	//FB PATCH END
 
 	dial := config.Dial
 	if dial == nil {
@@ -118,7 +120,8 @@ func (c *tlsTransportCache) get(config *Config) (http.RoundTripper, error) {
 	// Cache a single transport for these options
 	c.transports[key] = utilnet.SetTransportDefaults(&http.Transport{
 		Proxy:               proxy,
-		TLSHandshakeTimeout: 10 * time.Second,
+		//FB PATCH
+		TLSHandshakeTimeout: 30 * time.Second,
 		TLSClientConfig:     tlsConfig,
 		MaxIdleConnsPerHost: idleConnsPerHost,
 		DialContext:         dial,

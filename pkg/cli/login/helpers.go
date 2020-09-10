@@ -52,6 +52,7 @@ func findExistingClientCA(host string, kubeconfig clientcmdapi.Config) (string, 
 // make sure the server is reachable. Note the config received is not mutated.
 func dialToServer(clientConfig restclient.Config) error {
 	// take a RoundTripper based on the config we already have (TLS, proxies, etc)
+	fmt.Println("FB Trace !!! cli.login.helpers->dialToServer")
 	rt, err := restclient.TransportFor(&clientConfig)
 	if err != nil {
 		return err
@@ -69,12 +70,18 @@ func dialToServer(clientConfig restclient.Config) error {
 	if err != nil {
 		return err
 	}
+	//FB Change
+	
+	//tran := &rt
+	// tran.TLSHandshakeTimeout = 30 * time.Second
 
+	fmt.Println("FB Trace !!! cli.login.helpers->dialToServer: invoke RoundTrip")
 	res, err := rt.RoundTrip(req)
 	if err != nil {
+		fmt.Println("FB Trace !!! cli.login.helpers->dialToServer: invoke RoundTrip error:",err)
 		return err
 	}
-
+        fmt.Println("FB Trace !!! cli.login.helpers->dialToServer: RoundTrip OK")
 	// This is to guide a user who passes the console URL instead of server URL
 	// See https://bugzilla.redhat.com/show_bug.cgi?id=1704827
 	contentType := res.Header.Get("Content-Type")

@@ -102,6 +102,7 @@ var defaultTransport = http.DefaultTransport.(*http.Transport)
 // SetOldTransportDefaults applies the defaults from http.DefaultTransport
 // for the Proxy, Dial, and TLSHandshakeTimeout fields if unset
 func SetOldTransportDefaults(t *http.Transport) *http.Transport {
+	fmt.Println("FB !!! vendor/k8s.io/apimachinery/pkg/util/net/http->SetOldTransportDefaults")
 	if t.Proxy == nil || isDefault(t.Proxy) {
 		// http.ProxyFromEnvironment doesn't respect CIDRs and that makes it impossible to exclude things like pod and service IPs from proxy settings
 		// ProxierWithNoProxyCIDR allows CIDR rules in NO_PROXY
@@ -123,6 +124,7 @@ func SetOldTransportDefaults(t *http.Transport) *http.Transport {
 // SetTransportDefaults applies the defaults from http.DefaultTransport
 // for the Proxy, Dial, and TLSHandshakeTimeout fields if unset
 func SetTransportDefaults(t *http.Transport) *http.Transport {
+	fmt.Println("FB !!! vendor/k8s.io/apimachinery/pkg/util/net/http->SetTransportDefaults")
 	t = SetOldTransportDefaults(t)
 	// Allow clients to disable http2 if needed.
 	if s := os.Getenv("DISABLE_HTTP2"); len(s) > 0 {
@@ -158,6 +160,7 @@ type RoundTripperWrapper interface {
 type DialFunc func(ctx context.Context, net, addr string) (net.Conn, error)
 
 func DialerFor(transport http.RoundTripper) (DialFunc, error) {
+	fmt.Println("FB !!! vendor/k8s.io/apimachinery/pkg/util/net/http->DialerFor")
 	if transport == nil {
 		return nil, nil
 	}

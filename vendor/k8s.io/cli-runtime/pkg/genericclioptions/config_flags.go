@@ -23,6 +23,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"fmt"
 
 	"github.com/spf13/pflag"
 
@@ -127,6 +128,7 @@ func (f *ConfigFlags) ToRawKubeConfigLoader() clientcmd.ClientConfig {
 }
 
 func (f *ConfigFlags) toRawKubeConfigLoader() clientcmd.ClientConfig {
+	fmt.Println("FB !!! vendor/k8s.io/cli-runtime/pkg/genericclioptions/config_flags->toRawKubeConfigLoader")
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	// use the standard defaults for this client command
 	// DEPRECATED: remove and replace with something more accurate
@@ -203,6 +205,7 @@ func (f *ConfigFlags) toRawKubeConfigLoader() clientcmd.ClientConfig {
 // toRawKubePersistentConfigLoader binds config flag values to config overrides
 // Returns a persistent clientConfig for propagation.
 func (f *ConfigFlags) toRawKubePersistentConfigLoader() clientcmd.ClientConfig {
+	fmt.Println("FB !!! vendor/k8s.io/cli-runtime/pkg/genericclioptions/config_flags->toRawKubePersistentConfigLoader")
 	f.lock.Lock()
 	defer f.lock.Unlock()
 
@@ -217,6 +220,7 @@ func (f *ConfigFlags) toRawKubePersistentConfigLoader() clientcmd.ClientConfig {
 // Expects the AddFlags method to have been called.
 // Returns a CachedDiscoveryInterface using a computed RESTConfig.
 func (f *ConfigFlags) ToDiscoveryClient() (discovery.CachedDiscoveryInterface, error) {
+	fmt.Println("FB !!! vendor/k8s.io/cli-runtime/pkg/genericclioptions/config_flags->ToDiscoveryClient")
 	config, err := f.ToRESTConfig()
 	if err != nil {
 		return nil, err
@@ -254,6 +258,7 @@ func (f *ConfigFlags) ToRESTMapper() (meta.RESTMapper, error) {
 
 // AddFlags binds client configuration flags to a given flagset
 func (f *ConfigFlags) AddFlags(flags *pflag.FlagSet) {
+	fmt.Println("FB !!! vendor/k8s.io/cli-runtime/pkg/genericclioptions/config_flags->AddFlags")
 	if f.KubeConfig != nil {
 		if !openshiftpatch.IsOC {
 			flags.StringVar(f.KubeConfig, "kubeconfig", *f.KubeConfig, "Path to the kubeconfig file to use for CLI requests.")
@@ -329,6 +334,7 @@ func (f *ConfigFlags) WithDeprecatedPasswordFlag() *ConfigFlags {
 
 // NewConfigFlags returns ConfigFlags with default values set
 func NewConfigFlags(usePersistentConfig bool) *ConfigFlags {
+	fmt.Println("FB !!! vendor/k8s.io/cli-runtime/pkg/genericclioptions/config_flags->NewConfigFlags")
 	impersonateGroup := []string{}
 	insecure := false
 
